@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=360">
+  <title>GeoShift Pro</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <span class="logo">📍</span>
+      <h1>GeoShift Pro</h1>
+    </div>
+    <div class="header-right">
+      <button id="theme-toggle" class="icon-btn" title="Toggle Dark/Light Mode">🌙</button>
+    </div>
+  </header>
+
+  <!-- Status Bar -->
+  <div id="status-bar" class="status-bar status-off">
+    <span id="status-dot" class="status-dot"></span>
+    <span id="status-text">Spoofing OFF</span>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" data-tab="main">Location</button>
+    <button class="tab" data-tab="presets">Presets</button>
+    <button class="tab" data-tab="tools">Tools</button>
+    <button class="tab" data-tab="settings">Settings</button>
+  </div>
+
+  <!-- Main Tab -->
+  <div id="tab-main" class="tab-content active">
+    <!-- Coordinate Inputs -->
+    <div class="card">
+      <div class="card-title">Coordinates</div>
+      <div class="input-group">
+        <label for="latitude">Latitude</label>
+        <input type="number" id="latitude" placeholder="-90 to +90" step="any" min="-90" max="90">
+      </div>
+      <div class="input-group">
+        <label for="longitude">Longitude</label>
+        <input type="number" id="longitude" placeholder="-180 to +180" step="any" min="-180" max="180">
+      </div>
+      <div class="input-group">
+        <label for="accuracy">Accuracy (meters)</label>
+        <input type="number" id="accuracy" placeholder="Default: 10" step="any" min="0" value="10">
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="card">
+      <div class="btn-grid">
+        <button id="btn-save" class="btn btn-primary">💾 Save Location</button>
+        <button id="btn-enable" class="btn btn-success">✅ Enable Spoofing</button>
+        <button id="btn-disable" class="btn btn-danger">❌ Disable Spoofing</button>
+        <button id="btn-current" class="btn btn-secondary">📡 Use Current Location</button>
+        <button id="btn-copy" class="btn btn-secondary">📋 Copy Coordinates</button>
+        <button id="btn-maps" class="btn btn-secondary">🗺️ Open in Google Maps</button>
+        <button id="btn-reset" class="btn btn-outline">🔄 Reset</button>
+      </div>
+    </div>
+
+    <!-- Search City -->
+    <div class="card">
+      <div class="card-title">Search City</div>
+      <div class="search-row">
+        <input type="text" id="city-search" placeholder="Enter city name...">
+        <button id="btn-search" class="btn btn-primary btn-sm">🔍</button>
+      </div>
+      <div id="search-results" class="search-results hidden"></div>
+    </div>
+
+    <!-- Current Info -->
+    <div class="card" id="info-card">
+      <div class="card-title">Current Spoofed Location</div>
+      <div class="info-row">
+        <span class="info-label">Latitude:</span>
+        <span id="info-lat" class="info-value">0.000000</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Longitude:</span>
+        <span id="info-lon" class="info-value">0.000000</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Accuracy:</span>
+        <span id="info-acc" class="info-value">10m</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">DMS:</span>
+        <span id="info-dms" class="info-value dms">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Presets Tab -->
+  <div id="tab-presets" class="tab-content">
+    <div class="card">
+      <div class="card-title">Saved Presets</div>
+      <div id="presets-list" class="presets-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Add New Preset</div>
+      <div class="input-group">
+        <label for="preset-name">Name</label>
+        <input type="text" id="preset-name" placeholder="e.g., Home, Office">
+      </div>
+      <button id="btn-add-preset" class="btn btn-primary btn-block">➕ Save Current as Preset</button>
+    </div>
+
+    <!-- Recent History -->
+    <div class="card">
+      <div class="card-title">Recent Locations</div>
+      <div id="history-list" class="presets-list"></div>
+      <button id="btn-clear-history" class="btn btn-outline btn-block btn-sm" style="margin-top:8px;">🗑️ Clear History</button>
+    </div>
+  </div>
+
+  <!-- Tools Tab -->
+  <div id="tab-tools" class="tab-content">
+    <!-- Random Nearby -->
+    <div class="card">
+      <div class="card-title">Random Nearby Location</div>
+      <div class="input-group">
+        <label for="random-radius">Radius (meters)</label>
+        <input type="number" id="random-radius" placeholder="e.g., 500" value="500" min="1">
+      </div>
+      <button id="btn-random" class="btn btn-primary btn-block">🎲 Generate Random Nearby</button>
+    </div>
+
+    <!-- DMS Converter -->
+    <div class="card">
+      <div class="card-title">Coordinate Format Converter</div>
+      <div class="input-group">
+        <label for="dms-input">DMS Input</label>
+        <input type="text" id="dms-input" placeholder='e.g., 40° 42\'  46.08" N'>
+      </div>
+      <button id="btn-dms-to-dec" class="btn btn-secondary btn-block btn-sm">Convert DMS → Decimal</button>
+      <div id="dms-result" class="info-value" style="margin-top:8px; text-align:center; min-height:20px;"></div>
+    </div>
+
+    <!-- Import / Export -->
+    <div class="card">
+      <div class="card-title">Import / Export</div>
+      <div class="btn-grid">
+        <button id="btn-export" class="btn btn-secondary">📤 Export Settings</button>
+        <button id="btn-import" class="btn btn-secondary">📥 Import Settings</button>
+        <button id="btn-export-presets" class="btn btn-secondary">📤 Export Presets</button>
+        <button id="btn-import-presets" class="btn btn-secondary">📥 Import Presets</button>
+      </div>
+      <input type="file" id="import-file" accept=".json" class="hidden">
+      <input type="file" id="import-presets-file" accept=".json" class="hidden">
+    </div>
+  </div>
+
+  <!-- Settings Tab -->
+  <div id="tab-settings" class="tab-content">
+    <div class="card">
+      <div class="card-title">Preferences</div>
+      <div class="setting-row">
+        <span>Show floating badge on pages</span>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-badge" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <span>Dark mode</span>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-dark" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Keyboard Shortcuts</div>
+      <div class="info-row">
+        <span class="info-label">Toggle Spoofing</span>
+        <span class="info-value kbd">Alt+Shift+G</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Copy Coordinates</span>
+        <span class="info-value kbd">Alt+Shift+C</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">About</div>
+      <p class="about-text">GeoShift Pro v1.0.0</p>
+      <p class="about-text muted">Override browser GPS location. This extension does NOT change your IP address or act as a VPN.</p>
+    </div>
+  </div>
+
+  <script src="utils.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
